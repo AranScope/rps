@@ -18,18 +18,16 @@
                 <table class="table is-striped is-hoverable is-bordered is-fullwidth">
                     <tr>
                         <th>Outcome</th>
-                        <th>Player</th>
-                        <th>Played</th>
-                        <th>Opponent</th>
-                        <th>Played</th>
+                        <th>Game</th>
+                        <th>You Played</th>
+                        <th>Opponent Played</th>
                     </tr>
         
                     {% for item in games %}
                         <tr>
                             <td>{{ item.outcome }}</td>    
-                            <td>{{ item.player }}</td>                
+                            <td>{{ item.player }} vs. {{ item.opponent }}</td>                
                             <td>{{ item.player_turn }}</td>                
-                            <td>{{ item.opponent }}</td>                
                             <td>{{ item.opponent_turn }}</td> 
                         </tr>
                     {% endfor %}

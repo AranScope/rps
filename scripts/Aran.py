@@ -1,4 +1,4 @@
 import random
 
 def turn(prev_opponent_move):
-    return random.choice(['rock', 'paper', 'scissors'])
+    return random.choice(['paper', 'scissors'])

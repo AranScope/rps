@@ -70,6 +70,7 @@ def submit_script():
 def load_scripts(blacklist=[]):
     script_paths = (os.path.splitext(path)[0] for path in os.listdir('scripts') if os.path.splitext(path)[1] == '.py')
     scripts = []
+    importlib.invalidate_caches()
     
     for script_path in script_paths:
         if script_path not in blacklist:
@@ -97,58 +98,59 @@ def test_script(script_title):
     for opponent_script in load_scripts(blacklist=[script_title]):
         print("running against", opponent_script.__name__)
         try:
+            importlib.invalidate_caches()
             script = importlib.import_module('scripts.{}'.format(script_title))
         except:
             raise InvalidScriptError()
 
-        try:
-            my_turn = script.turn("none")
-            opponent_turn = opponent_script.turn("none")
-        except:
-            raise InvalidScriptError()
+        my_turn = "none"
+        opponent_turn = "none"
 
         for _ in range(GAMES_PER_SCRIPT):
             for _ in range(MAX_REDOS):
+                try:
+                    my_turn, opponent_turn = script.turn(opponent_turn), opponent_script.turn(my_turn)
+                except:
+                    raise InvalidScriptError()
 
                 if(my_turn == "rock"):
                     if(opponent_turn == "rock"):
                         continue
                     elif(opponent_turn == "paper"):
-                        results.append({'outcome': 'loss', 'player': script_title, 'player_turn': my_turn, 'opponent': opponent_script.__name__, 'opponent_turn': opponent_turn})
+                        results.append({'outcome': 'loss', 'player': script_title, 'player_turn': my_turn, 'opponent': opponent_script.__name__.replace("scripts.", ""), 'opponent_turn': opponent_turn})
                         losses += 1
                         break
                     elif(opponent_turn == "scissors"):
-                        results.append({'outcome': 'win', 'player': script_title, 'player_turn': my_turn, 'opponent': opponent_script.__name__, 'opponent_turn': opponent_turn})
+                        results.append({'outcome': 'win', 'player': script_title, 'player_turn': my_turn, 'opponent': opponent_script.__name__.replace("scripts.", ""), 'opponent_turn': opponent_turn})
                         wins += 1
                         break
                 elif(my_turn == "paper"):
                     if(opponent_turn == "rock"):
-                        results.append({'outcome': 'win', 'player': script_title, 'player_turn': my_turn, 'opponent': opponent_script.__name__, 'opponent_turn': opponent_turn})
+                        results.append({'outcome': 'win', 'player': script_title, 'player_turn': my_turn, 'opponent': opponent_script.__name__.replace("scripts.", ""), 'opponent_turn': opponent_turn})
                         wins += 1
                         break
                     elif(opponent_turn == "paper"):
                         continue
                     elif(opponent_turn == "scissors"):
                         losses += 1
-                        results.append({'outcome': 'loss', 'player': script_title, 'player_turn': my_turn, 'opponent': opponent_script.__name__, 'opponent_turn': opponent_turn})
+                        results.append({'outcome': 'loss', 'player': script_title, 'player_turn': my_turn, 'opponent': opponent_script.__name__.replace("scripts.", ""), 'opponent_turn': opponent_turn})
                         break
                 elif(my_turn == "scissors"):
                     if(opponent_turn == "rock"):
                         losses += 1
-                        results.append({'outcome': 'loss', 'player': script_title, 'player_turn': my_turn, 'opponent': opponent_script.__name__, 'opponent_turn': opponent_turn})
+                        results.append({'outcome': 'loss', 'player': script_title, 'player_turn': my_turn, 'opponent': opponent_script.__name__.replace("scripts.", ""), 'opponent_turn': opponent_turn})
                         break
                     elif(opponent_turn == "paper"):
                         wins += 1
-                        results.append({'outcome': 'win', 'player': script_title, 'player_turn': my_turn, 'opponent': opponent_script.__name__, 'opponent_turn': opponent_turn})
+                        results.append({'outcome': 'win', 'player': script_title, 'player_turn': my_turn, 'opponent': opponent_script.__name__.replace("scripts.", ""), 'opponent_turn': opponent_turn})
                         break
                     elif(opponent_turn == "scissors"):
                         continue
+                
             else:
                 draws += 1
-                results.append({'outcome': 'draw', 'player': script_title, 'player_turn': my_turn, 'opponent': opponent_script.__name__, 'opponent_turn': opponent_turn})
-
+                results.append({'outcome': 'draw', 'player': script_title, 'player_turn': my_turn, 'opponent': opponent_script.__name__.replace("scripts.", ""), 'opponent_turn': opponent_turn})
                 
-                my_turn, opponent_turn = script.turn(opponent_turn), opponent_script.turn(my_turn)
 
         
     print("Script: {}, Wins: {}, Losses: {}, Draws: {}".format(script_title, wins, losses, draws))
