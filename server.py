@@ -24,7 +24,7 @@ def index():
 def lb():
     scores = []
 
-    for key in sorted(leaderboard, key=lambda k: 1/leaderboard[k]['win/loss']):
+    for key in sorted(leaderboard, key=lambda k: leaderboard[k]['win/loss'], reverse=True):
         scores.append({
             'name': key,
             'winlossratio': leaderboard[key]['win/loss']
@@ -156,4 +156,4 @@ def test_script(script_title):
     print("Script: {}, Wins: {}, Losses: {}, Draws: {}".format(script_title, wins, losses, draws))
     return wins, losses, draws, results
                 
-app.run()
+app.run(host='0.0.0.0')
