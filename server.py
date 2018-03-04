@@ -2,15 +2,44 @@ import importlib
 import os
 import json
 
-from flask import Flask, request
-app = Flask(__name__)
+from flask import Flask, request, render_template
 
 class InvalidScriptError(RuntimeError):
     pass
 
+app = Flask(__name__)
+
+GAMES_PER_SCRIPT = 100
+MAX_REDOS = 3
+leaderboard = None
+
+with open('leaderboard.json') as f:
+    leaderboard = json.loads(f.read())
+
+@app.route('/', methods=['GET'])
+def index():
+    return render_template('index.html')
+
+@app.route('/leaderboard', methods=['GET'])
+def lb():
+    scores = []
+
+    for key in sorted(leaderboard, key=lambda k: 1/leaderboard[k]['win/loss']):
+        scores.append("{}, Win/Loss ratio: {}".format(key, leaderboard[key]['win/loss']))
+
+    return render_template('leaderboard.html', scores=scores)
+
+
 @app.route('/submit', methods=['POST'])
 def submit_script():
     print('requested endoiasd')
+
+    if 'script' not in request.form:
+        return "Missing script text"
+
+    if 'name' not in request.form:
+        return "Missing name text"
+
     add_script(request.form['name'], request.form['script'])
 
     try:
@@ -24,17 +53,16 @@ def submit_script():
             'win/loss': wins/max(1, losses)
         }
 
-        open('leaderboard.json', 'w').write(json.dumps(leaderboard))
+        with open('leaderboard.json', 'w') as f:
+            f.write(json.dumps(leaderboard))
 
-        return 'Wins: {}, Losses: {}, Draws: {}'.format(wins, losses, draws)
+        return render_template('submit.html', result='Wins: {}, Losses: {}, Draws: {}'.format(wins, losses, draws))
         
     except InvalidScriptError:
         return 'Invalid script'
 
 
-GAMES_PER_SCRIPT = 100
-MAX_REDOS = 3
-leaderboard = json.loads(open('leaderboard.json').read())
+
 
 def load_scripts(blacklist=[]):
     script_paths = (os.path.splitext(path)[0] for path in os.listdir('scripts') if os.path.splitext(path)[1] == '.py')
