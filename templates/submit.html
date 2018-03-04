@@ -1,12 +1,40 @@
 <html>
+    <head>
+            <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css"/>
+        </head>
     <body>
-        <h1>Rock Paper Scissors Contest</h1>
-        <br>
-        <br>
-        <h3>
-            {{ result }}
-        </h3>
-        <a href="/leaderboard.html">Leaderboard</a>
-        <a href="/">Back to submission</a>
+        <section class="hero is-primary">
+            <div class="hero-body">
+                    <h1 class="title is-1">Rock Paper Scissors - Submission</h1>
+                    <h2 class="subtitle">{{ result }}</h2>
+            </div>
+        </section>
+        <section class="section">
+            <div class="container">
+                <a class="button" href="/leaderboard">Leaderboard</a>
+                <a class="button is-primary" href="/">Back to submission</a>
+                <br>
+                <br>
+                <table class="table is-striped is-hoverable is-bordered is-fullwidth">
+                    <tr>
+                        <th>Outcome</th>
+                        <th>Player</th>
+                        <th>Played</th>
+                        <th>Opponent</th>
+                        <th>Played</th>
+                    </tr>
+        
+                    {% for item in games %}
+                        <tr>
+                            <td>{{ item.outcome }}</td>    
+                            <td>{{ item.player }}</td>                
+                            <td>{{ item.player_turn }}</td>                
+                            <td>{{ item.opponent }}</td>                
+                            <td>{{ item.opponent_turn }}</td> 
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </section>
     </body>
 </html>

@@ -25,8 +25,11 @@ def lb():
     scores = []
 
     for key in sorted(leaderboard, key=lambda k: 1/leaderboard[k]['win/loss']):
-        scores.append("{}, Win/Loss ratio: {}".format(key, leaderboard[key]['win/loss']))
-
+        scores.append({
+            'name': key,
+            'winlossratio': leaderboard[key]['win/loss']
+        })
+            
     return render_template('leaderboard.html', scores=scores)
 
 
@@ -43,7 +46,7 @@ def submit_script():
     add_script(request.form['name'], request.form['script'])
 
     try:
-        wins, losses, draws = test_script(request.form['name'])
+        wins, losses, draws, games = test_script(request.form['name'])
         # name = 
         # if leaderboard[['win/loss'] < wins/losses:
         leaderboard[request.form['name']] = {
@@ -56,7 +59,7 @@ def submit_script():
         with open('leaderboard.json', 'w') as f:
             f.write(json.dumps(leaderboard))
 
-        return render_template('submit.html', result='Wins: {}, Losses: {}, Draws: {}'.format(wins, losses, draws))
+        return render_template('submit.html', result='Wins: {}, Losses: {}, Draws: {}'.format(wins, losses, draws), games=games)
         
     except InvalidScriptError:
         return 'Invalid script'
@@ -89,6 +92,8 @@ def test_script(script_title):
     losses = 0
     draws = 0
 
+    results = []
+
     for opponent_script in load_scripts(blacklist=[script_title]):
         print("running against", opponent_script.__name__)
         try:
@@ -109,36 +114,44 @@ def test_script(script_title):
                     if(opponent_turn == "rock"):
                         continue
                     elif(opponent_turn == "paper"):
+                        results.append({'outcome': 'loss', 'player': script_title, 'player_turn': my_turn, 'opponent': opponent_script.__name__, 'opponent_turn': opponent_turn})
                         losses += 1
                         break
                     elif(opponent_turn == "scissors"):
+                        results.append({'outcome': 'win', 'player': script_title, 'player_turn': my_turn, 'opponent': opponent_script.__name__, 'opponent_turn': opponent_turn})
                         wins += 1
                         break
                 elif(my_turn == "paper"):
                     if(opponent_turn == "rock"):
+                        results.append({'outcome': 'win', 'player': script_title, 'player_turn': my_turn, 'opponent': opponent_script.__name__, 'opponent_turn': opponent_turn})
                         wins += 1
                         break
                     elif(opponent_turn == "paper"):
                         continue
                     elif(opponent_turn == "scissors"):
                         losses += 1
+                        results.append({'outcome': 'loss', 'player': script_title, 'player_turn': my_turn, 'opponent': opponent_script.__name__, 'opponent_turn': opponent_turn})
                         break
                 elif(my_turn == "scissors"):
                     if(opponent_turn == "rock"):
                         losses += 1
+                        results.append({'outcome': 'loss', 'player': script_title, 'player_turn': my_turn, 'opponent': opponent_script.__name__, 'opponent_turn': opponent_turn})
                         break
                     elif(opponent_turn == "paper"):
                         wins += 1
+                        results.append({'outcome': 'win', 'player': script_title, 'player_turn': my_turn, 'opponent': opponent_script.__name__, 'opponent_turn': opponent_turn})
                         break
                     elif(opponent_turn == "scissors"):
                         continue
             else:
                 draws += 1
+                results.append({'outcome': 'draw', 'player': script_title, 'player_turn': my_turn, 'opponent': opponent_script.__name__, 'opponent_turn': opponent_turn})
+
                 
-            my_turn, opponent_turn = script.turn(opponent_turn), opponent_script.turn(my_turn)
+                my_turn, opponent_turn = script.turn(opponent_turn), opponent_script.turn(my_turn)
 
         
     print("Script: {}, Wins: {}, Losses: {}, Draws: {}".format(script_title, wins, losses, draws))
-    return wins, losses, draws
+    return wins, losses, draws, results
                 
 app.run()

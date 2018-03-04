@@ -1,17 +1,35 @@
 <html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css"/>
+    </head>
     <body>
-        <h1>Rock Paper Scissors Contest</h1>
-        <form action="/submit" method="post">
-            Your name:
-            <br>
-            <input type="text" name="name">
-            <br>
-            Your script:
-            <br>
-            <textarea rows="20" cols="40" type="text" name="script"></textarea>
-            <br>
-            <input type="submit" value="Submit">
-        </form>
-        <a href="/leaderboard">Leaderboard</a>
+        <section class="hero is-primary">
+                <div class="hero-body">
+                        <h1 class="title is-1">Rock Paper Scissors</h1>
+                        <h2 class="subtitle">Enrichment Tournament</h2>
+                </div>
+            </section>
+        <section class="section">
+            <div class="container">
+                <form class="form" action="/submit" method="post">
+                    <div class="field">
+                        <label class="label">Enter name</label>
+                        <div class="control">
+                                <input class="input" placeholder="John Smith" type="text" name="name">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">Enter script</label>
+                        <div class="control">
+                            <textarea class="textarea" name="script" placeholder="Python code goes here" rows="20"></textarea>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <button type="submit" class="button is-link">Submit</button>
+                        <a class="button is-primary" href="/leaderboard">Leaderboard</a>
+                    </div>
+                </form>
+            </div>
+        </section>
     </body>
 </html>
